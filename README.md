@@ -1,7 +1,3 @@
----
-description: 你能从这里得到什么？
----
-
 # 前言
 
 这是一本以 Ember.js 框架，特别是以最新的 Octane Edition 为主题的小册子。
