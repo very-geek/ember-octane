@@ -6,6 +6,7 @@
 
 * [对象模型与反应系统](core-concepts/object-model-and-reactivity/README.md)
   * [概述](core-concepts/object-model-and-reactivity/overview.md)
+  * [基本用法](core-concepts/object-model-and-reactivity/basic-usage.md)
 
 ## 🗃参考资料 <a id="resources"></a>
 
