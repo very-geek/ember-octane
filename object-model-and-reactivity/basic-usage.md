@@ -92,7 +92,7 @@ Birthday: {{this.birthday}}
 
 我有一千个理由来陈述为什么不应该使用 Controller，在这里最合适的理由就是“职责混乱“。再看一眼最终的模板，我们发现：渲染姓名使用的是 `{{@model.xxx}}` 但渲染生日却用的是 `{{this.birthday}}`。这是因为 `birthday` 是我们在 Controller 里创造的衍生属性，可是直觉上又会觉得 `birthday` 不应该属于 Controller。
 
-![Ember.js &#x5E94;&#x7528;&#x7A0B;&#x5E8F;&#x7684;&#x7ED3;&#x6784;&#x56FE;&#xFF08;&#x90E8;&#x5206;&#x6807;&#x6CE8;&#xFF09;](../.gitbook/assets/jie-ping-20200130-shang-wu-10.45.50.png)
+![](../.gitbook/assets/jie-ping-20200130-shang-wu-10.45.50.png)
 
 上图是官网文档中介绍框架结构的示意图，我们的演示集中在图中蓝色矩形里面的部分，红色圆圈里的 Model 就是通过路由 `model() {}` 返回的可供模板直接渲染的对象。在这里其实隐含了一个很关键的问题：**如果 `@model` 不够用怎么办？**
 
@@ -140,7 +140,7 @@ export default class HeroRoute extends Route {
 于是我们的模版就可以写成：
 
 {% code title="app/templates/hero.hbs" %}
-```handlebars
+```text
 Full Name: {{@model.fullName}}
 Birthday: {{@model.birthday}}
 ```
@@ -188,13 +188,30 @@ export default class HeroRoute extends Route {
 {% endcode %}
 
 再见！`EmberObject`，这次是真的永别了。
+
+{% hint style="warning" %}
+### 给初学者
+
+我们在例子中直接把 `Hero` Class 写在了 `app/routes/hero.js` 路由文件中，这当然是为了方便起见。
+
+在真实项目中并不推荐这样做，而是应该单独创建一个 module，比如 `utils/hero.js`，然后 `export default class Hero { ... }`，最后在需要的地方 `import Hero from '...'` 来使用它。
+
+另外，在例子中我还使用了 `this.store`，这其实是假定使用了 Ember Data。假如这个例子就是一个使用了 Ember Data 的项目，那么 `Hero` 实际上应该是一个 Ember Data Model，它的代码也应该是写在 `app/models/hero.js` 文件里。
+{% endhint %}
 {% endtab %}
 {% endtabs %}
 
 关于 Native Class 在 Ember Octane 里的使用，还有一些细节需要强调一下。参照最后的代码例子：
 
-* 使用 `new Model(attrs)` 实例化：`EmberObject` 提供了静态方法 `create` 来创建实例对象，它做了一些不透明的事情，比如说它会将传入的属性与原型对象进行合并，所以我们似乎不需要有一个“初始化“的过程（也就是在 Native Class 里 `constructor` 做的部分事情）。乍看起来这挺方便，但一方面是因为过去的对象模型是非标准化的，如果不自动帮用户做点事情，用户自己可能会搞得一团糟；另一方面这种“隐式“的逻辑反而会降低代码的可读性和可维护性，也不利于代码的内省。  当我们使用 Native Class 的时候，一切都按标准化的方式来，需要初始化的过程逻辑就写在 `constructor` 里。看似麻烦了些，但这是不需要额外的学习成本和理解负担的。
-* 因为 `EmberObject` 做了一些“隐式“的事情，所以即使用户希望附着一些自定义的初始化逻辑也不能依赖于 `constructor` 了。因为如果这些逻辑的前置依赖是来自 `EmberObject` 自身的行为（比如说合并初始参数进原型对象），那么在 `constructor` 里这一切都还没发生呢！所以 `EmberObject` 又提供了一个 `init() {}` 钩子，来确保用户自定义的初始化逻辑在正确的时间来执行。  然而这又带来了额外的学习成本和理解负担，幸好 Native Class 不存在这个问题，我们不再依赖 `EmberObject` 的特性，也就不再依赖它提供的额外的钩子方法来执行我们的自定义逻辑。
-* 如例子中所示，Computed Property 依然可用！这是因为 Ember Octane 的 CP macros（也就是 `@computed` 等等这些）就只是单纯的函数，我们完全可以把它们视为标准的装饰器函数来用（即：decorators）。  唯一需要注意的是：如果作为依赖的属性（比如前例中的 `dob`）需要改变，并且这种改变是应该让 CP 重新求值的，那么你依然需要使用 `Ember.set` 函数。且因为我们不再使用 `EmberObject` 了，所以 `this.set` 方法其实也不存在了，所以这种情况一定需要写成：  ```javascript  import { set } from '@ember/object';  // 给作为依赖的属性设置新的值 set(this, 'dob', 1577808000000);  // 触发 CP 属性重新求值 this.birthday; // Wed Jan 1, 2020```
+* 使用 `new Model(attrs)` 实例化：`EmberObject` 提供了静态方法 `create` 来创建实例对象，它做了一些不透明的事情，比如说它会将传入的属性与原型对象进行合并，所以我们似乎不需要有一个“初始化“的过程（也就是在 Native Class 里 `constructor` 做的部分事情）。乍看起来这挺方便，但一方面是因为过去的对象模型是非标准化的，如果不自动帮用户做点事情，用户自己可能会搞得一团糟；另一方面这种“隐式“的逻辑反而会降低代码的可读性和可维护性，也不利于代码的内省。  当我们使用 Native Class 的时候，一切都按标准化的方式来，需要初始化的过程逻辑就写在 `constructor` 里。看似麻烦了些，但这是不需要额外的学习成本和理解负担的。 
+* 因为 `EmberObject` 做了一些“隐式“的事情，所以即使用户希望附着一些自定义的初始化逻辑也不能依赖于 `constructor` 了。因为如果这些逻辑的前置依赖是来自 `EmberObject` 自身的行为（比如说合并初始参数进原型对象），那么在 `constructor` 里这一切都还没发生呢！所以 `EmberObject` 又提供了一个 `init() {}` 钩子，来确保用户自定义的初始化逻辑在正确的时间来执行。  然而这又带来了额外的学习成本和理解负担，幸好 Native Class 不存在这个问题，我们不再依赖 `EmberObject` 的特性，也就不再依赖它提供的额外的钩子方法来执行我们的自定义逻辑。 
+* 如例子中所示，Computed Property 依然可用！这是因为 Ember Octane 的 CP macros（也就是 `@computed` 等等这些）就只是单纯的函数，我们完全可以把它们视为标准的装饰器函数来用（即：decorators）。  唯一需要注意的是：如果作为依赖的属性（比如前例中的 `dob`）需要改变，并且这种改变是应该让 CP 重新求值的，那么你依然需要使用 `Ember.set` 函数。且因为我们不再使用 `EmberObject` 了，所以 `this.set` 方法其实也不存在了，所以这种情况一定需要写成：  `import { set } from '@ember/object';  // 给作为依赖的属性设置新的值 set(this, 'dob', 1577808000000);  // 触发 CP 属性重新求值 this.birthday; // Wed Jan 1, 2020`
 
 那么，有可能不再需要使用 `set` 来设置新值吗？这将是我们下一章将继续探讨的内容。
+
+在本文的最后我放两张截图，它们分别是在 Ember Inspector 里看到的，继承自 `EmberObject` 的 `Hero` Class 和 Native `Hero` Class 的实例对象，给大家一个比较直观的感性对比：
+
+![&#x6269;&#x5C55;&#x81EA; EmberObject &#x7684; Hero &#x5BF9;&#x8C61;](../.gitbook/assets/image%20%282%29.png)
+
+![&#x4F7F;&#x7528; Native Class &#x521B;&#x5EFA;&#x7684; Hero &#x5BF9;&#x8C61;](../.gitbook/assets/image%20%283%29.png)
+

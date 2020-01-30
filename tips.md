@@ -4,9 +4,9 @@ description: 本页收集汇总了一些很有用但不容易记忆或查找到�
 
 # 技巧汇总
 
-### 测试 <a id="testing"></a>
+## 测试 <a id="testing"></a>
 
-#### 如何在 test helper 中查找到一个指定的 service？
+### 如何在 test helper 中查找到一个指定的 service？
 
 ```javascript
 import { getContext } from '@ember/test-helpers';
@@ -20,3 +20,4 @@ let owner = context.owner;
 // When you want to look up a service:
 let fooService = owner.lookUp('service:foo');
 ```
+
