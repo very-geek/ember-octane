@@ -16,7 +16,7 @@
 Ember Octane 带来的最根本的变化就是对于原生类的完全兼容，要理解这一点我们来看一个例子：
 
 {% tabs %}
-{% tab title="Step 1" %}
+{% tab title="Demo 1" %}
 比方说，我们可以通过后端 API 获得某位漫威英雄的基本信息：
 
 {% code title="app/routes/hero.js" %}
@@ -53,17 +53,17 @@ Full Name: {{@model.firstName}} {{@model.lastName}}
 ```
 {% endcode %}
 
-对于这个极简单的例子来说是没问题的，但现实情况下并不总是如此简单。看下一个例子——
+对于这个极简单的例子来说是没问题的，但现实情况下并不总是如此简单。请看 Demo 2：
 {% endtab %}
 
-{% tab title="Step 2" %}
+{% tab title="Demo 2" %}
 比方说我们得到的数据变成了：
 
 ![](../../.gitbook/assets/image%20%281%29.png)
 
 `dob` 是 Unix Timestamp 所表示的出生日期，如果我们要用对人类友好的方式来显示生日，那么就很难直接在模板上进行转换了。
 
-在 Classic Ember 时代，上面的诉求通常都会经由 `Controller` 来帮我们实现，例如：
+在 Classic Ember 时代，上面的诉求通常都会经由 Controller 来帮我们实现，例如：
 
 {% code title="app/controllers/hero.js" %}
 ```javascript
@@ -87,6 +87,70 @@ Birthday: {{this.birthday}}
 ```
 
 做到这一步似乎就已经大功告成了，但在这里我必须要指出：这样做是错误的！
+{% endtab %}
+{% endtabs %}
+
+我有一千个理由来陈述为什么不应该使用 Controller，在这里最合适的理由就是“职责混乱“。再看一眼最终的模板，我们发现：渲染姓名使用的是 `{{@model.xxx}}` 但渲染生日却用的是 `{{this.birthday}}`。这是因为 `birthday` 是我们在 Controller 里创造的衍生属性，可是直觉上又会觉得 `birthday` 不应该属于 Controller。
+
+![Ember.js &#x5E94;&#x7528;&#x7A0B;&#x5E8F;&#x7684;&#x7ED3;&#x6784;&#x56FE;&#xFF08;&#x90E8;&#x5206;&#x6807;&#x6CE8;&#xFF09;](../../.gitbook/assets/jie-ping-20200130-shang-wu-10.45.50.png)
+
+上图是官网文档中介绍框架结构的示意图，我们的演示集中在图中蓝色矩形里面的部分，红色圆圈里的 Model 就是通过路由 `model() {}` 返回的可供模板直接渲染的对象。在这里其实隐含了一个很关键的问题：**如果 `@model` 不够用怎么办？**
+
+假如我们无视 Controller 的存在，那么惯例上我们可以通过创建 Component，然后在 Component 的内部完成对 `@model` 数据的进一步修饰（就好像 Demo 2 里创造的衍生属性 `birthday` 一样）。然而这么做有时候很合适，有时候则不一定，两者之间的分界在于我们要衍生的东西，究竟是属于哪边的？业务？还是 UI？
+
+在我们这个例子里，很显然 `birthday` 和 UI 没有直接关系，它是 `@model.dob` 的以另外一种格式存在的数据。如果有一个 Component 需要渲染一位漫威英雄的基本资料，那么这个组件应该只需要接收到数据然后直接渲染就够了，数据要怎么“装饰“则超出了组件了职责范畴。
+
+Controller 的问题就在于此：它不是组件，也不单纯是业务逻辑的领域；它介乎于二者之间的同时又有着独特的性质（比如说 Controller 都是单例对象且一旦生成就不会销毁）。所以它在 Ember.js 应用程序之中的职责总是模糊而暧昧的，那些非常依赖 Controller 的 Ember.js 应用程序总是看起来十分臃肿且晦涩难懂。
+
+OK，Controller 不能用，Component 不见得合适，那么这个问题究竟应该如何处理较好呢？我们继续看 Demo 3：
+
+{% tabs %}
+{% tab title="Demo 3" %}
+这一次我们把生成衍生的 `birthday` 属性的职责转移到正确的地方——专门表示漫威英雄的 `Hero` Class：
+
+{% code title="app/routes/hero.js" %}
+```javascript
+import EmberObject from '@ember/object';
+import Route from '@ember/routing/route';
+
+class Hero extends EmberObject {
+    @computed('firstName', 'lastName')
+    get fullName() {
+        return `${this.firstName} ${this.lastName}`;
+    }
+    
+    @computed('dob')
+    get birthday() {
+        let date = new Date(this.model.dob);
+        return date.toDateString(); // => Sun Apr 4, 1965
+    }
+}
+
+export default class HeroRoute extends Route {
+    async model() {
+        let hero = await this.store.findRecord('hero', 'ironman');
+        return Hero.create(hero);
+    }
+}
+```
+{% endcode %}
+
+这也是 Ember Classic 时代我们做这样的事情需要依赖 `EmberObject` 的主要原因：我们的 `Hero` Class 需要 Computed Property 特性的支持。
+
+于是我们的模版就可以写成：
+
+{% code title="app/templates/hero.hbs" %}
+```text
+Full Name: {{@model.fullName}}
+Birthday: {{@model.birthday}}
+```
+{% endcode %}
+
+漂亮！你还可以看到我顺便也写了一个 `fullName` 属性，这当然不是必须的，但这么做会让模版变得更易读和易于维护。
+{% endtab %}
+
+{% tab title="Second Tab" %}
+
 {% endtab %}
 {% endtabs %}
 
