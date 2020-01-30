@@ -34,7 +34,7 @@ export default class HeroRoute extends Route {
 
 假定返回的数据结构如下图所示：
 
-![](https://github.com/very-geek/ember-octane/tree/77547f53b9fc4e571b9dd19db9f285e43e0a9c75/core-concepts/.gitbook/assets/image.png)
+![](../.gitbook/assets/image.png)
 
 那么我们可以像这样来渲染模板：
 
@@ -59,7 +59,7 @@ Full Name: {{@model.firstName}} {{@model.lastName}}
 {% tab title="Demo 2" %}
 比方说我们得到的数据变成了：
 
-![](https://github.com/very-geek/ember-octane/tree/77547f53b9fc4e571b9dd19db9f285e43e0a9c75/core-concepts/.gitbook/assets/image%20%281%29.png)
+![](../.gitbook/assets/image%20%281%29.png)
 
 `dob` 是 Unix Timestamp 所表示的出生日期，如果我们要用对人类友好的方式来显示生日，那么就很难直接在模板上进行转换了。
 
@@ -92,7 +92,7 @@ Birthday: {{this.birthday}}
 
 我有一千个理由来陈述为什么不应该使用 Controller，在这里最合适的理由就是“职责混乱“。再看一眼最终的模板，我们发现：渲染姓名使用的是 `{{@model.xxx}}` 但渲染生日却用的是 `{{this.birthday}}`。这是因为 `birthday` 是我们在 Controller 里创造的衍生属性，可是直觉上又会觉得 `birthday` 不应该属于 Controller。
 
-![Ember.js &#x5E94;&#x7528;&#x7A0B;&#x5E8F;&#x7684;&#x7ED3;&#x6784;&#x56FE;&#xFF08;&#x90E8;&#x5206;&#x6807;&#x6CE8;&#xFF09;](https://github.com/very-geek/ember-octane/tree/77547f53b9fc4e571b9dd19db9f285e43e0a9c75/core-concepts/.gitbook/assets/jie-ping-20200130-shang-wu-10.45.50.png)
+![](../.gitbook/assets/jie-ping-20200130-shang-wu-10.45.50.png)
 
 上图是官网文档中介绍框架结构的示意图，我们的演示集中在图中蓝色矩形里面的部分，红色圆圈里的 Model 就是通过路由 `model() {}` 返回的可供模板直接渲染的对象。在这里其实隐含了一个很关键的问题：**如果 `@model` 不够用怎么办？**
 
