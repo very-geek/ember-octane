@@ -110,7 +110,7 @@ OK，Controller 不能用，Component 不见得合适，那么这个问题究竟
 
 {% code title="app/routes/hero.js" %}
 ```javascript
-import EmberObject from '@ember/object';
+import EmberObject, { computed } from '@ember/object';
 import Route from '@ember/routing/route';
 
 class Hero extends EmberObject {
@@ -147,9 +147,44 @@ Birthday: {{@model.birthday}}
 {% endcode %}
 
 漂亮！你还可以看到我顺便也写了一个 `fullName` 属性，这当然不是必须的，但这么做会让模版变得更易读和易于维护。
+
+然而本节内容的标题是：再见！`EmberObject`，所以这还没完，继续看 Demo 4：
 {% endtab %}
 
-{% tab title="Second Tab" %}
+{% tab title="Demo 4" %}
+之前说到，Ember Octane 是可以完全使用原生的 ES2015 Class 的，所以这个例子还可以进一步改进：
 
+{% code title="app/routes/hero.js" %}
+```javascript
+import { computed } from '@ember/object';
+import Route from '@ember/routing/route';
+
+class Hero {
+    constructor(attrs) {
+        this.firstName = attrs.firstName || 'John';
+        this.lastName = attrs.lastName || 'Doe';
+        this.dob = attrs.dob || -2209017943000; // => Mon Jan 1, 1900
+    }
+
+    @computed('firstName', 'lastName')
+    get fullName() {
+        return `${this.firstName} ${this.lastName}`;
+    }
+
+    @computed('dob')
+    get birthday() {
+        let date = new Date(this.model.dob);
+        return date.toDateString(); // => Sun Apr 4, 1965
+    }
+}
+
+export default class HeroRoute extends Route {
+    async model() {
+        let hero = await this.store.findRecord('hero', 'ironman');
+        return new Hero(hero);
+    }
+}
+```
+{% endcode %}
 {% endtab %}
 {% endtabs %}
