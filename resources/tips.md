@@ -20,6 +20,3 @@ let owner = context.owner;
 // When you want to look up a service:
 let fooService = owner.lookUp('service:foo');
 ```
-
-
-
