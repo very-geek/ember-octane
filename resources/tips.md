@@ -21,7 +21,7 @@ let owner = context.owner;
 let fooService = owner.lookUp('service:foo');
 ```
 
-## 工具
+## 工具 <a id="tooling"></a>
 
 ### 如何让 ember-cli-template-lint 不检查 local linked add-on 中的模板？ <a id="not-to-lint-templates-in-a-linked-addon"></a>
 
