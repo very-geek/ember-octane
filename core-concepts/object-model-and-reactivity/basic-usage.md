@@ -34,7 +34,7 @@ export default class HeroRoute extends Route {
 
 假定返回的数据结构如下图所示：
 
-![](../.gitbook/assets/image.png)
+![](../../.gitbook/assets/image.png)
 
 那么我们可以像这样来渲染模板：
 
@@ -59,7 +59,7 @@ Full Name: {{@model.firstName}} {{@model.lastName}}
 {% tab title="Demo 2" %}
 比方说我们得到的数据变成了：
 
-![](../.gitbook/assets/image%20%281%29.png)
+![](../../.gitbook/assets/image%20%281%29.png)
 
 `dob` 是 Unix Timestamp 所表示的出生日期，如果我们要用对人类友好的方式来显示生日，那么就很难直接在模板上进行转换了。
 
@@ -92,7 +92,7 @@ Birthday: {{this.birthday}}
 
 我有一千个理由来陈述为什么不应该使用 Controller，在这里最合适的理由就是“职责混乱“。再看一眼最终的模板，我们发现：渲染姓名使用的是 `{{@model.xxx}}` 但渲染生日却用的是 `{{this.birthday}}`。这是因为 `birthday` 是我们在 Controller 里创造的衍生属性，可是直觉上又会觉得 `birthday` 不应该属于 Controller。
 
-![](../.gitbook/assets/jie-ping-20200130-shang-wu-10.45.50.png)
+![](../../.gitbook/assets/jie-ping-20200130-shang-wu-10.45.50.png)
 
 上图是官网文档中介绍框架结构的示意图，我们的演示集中在图中蓝色矩形里面的部分，红色圆圈里的 Model 就是通过路由 `model() {}` 返回的可供模板直接渲染的对象。在这里其实隐含了一个很关键的问题：**如果 `@model` 不够用怎么办？**
 
@@ -211,7 +211,7 @@ export default class HeroRoute extends Route {
 
 在本文的最后我放两张截图，它们分别是在 Ember Inspector 里看到的，继承自 `EmberObject` 的 `Hero` Class 和 Native `Hero` Class 的实例对象，给大家一个比较直观的感性对比：
 
-![&#x6269;&#x5C55;&#x81EA; EmberObject &#x7684; Hero &#x5BF9;&#x8C61;](../.gitbook/assets/image%20%282%29.png)
+![&#x6269;&#x5C55;&#x81EA; EmberObject &#x7684; Hero &#x5BF9;&#x8C61;](../../.gitbook/assets/image%20%282%29.png)
 
-![&#x4F7F;&#x7528; Native Class &#x521B;&#x5EFA;&#x7684; Hero &#x5BF9;&#x8C61;](../.gitbook/assets/image%20%283%29.png)
+![&#x4F7F;&#x7528; Native Class &#x521B;&#x5EFA;&#x7684; Hero &#x5BF9;&#x8C61;](../../.gitbook/assets/image%20%283%29.png)
 
