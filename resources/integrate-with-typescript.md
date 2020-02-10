@@ -12,7 +12,7 @@ description: 以一个全新创建的 Ember Octane App 为基础介绍如何整�
 
 ## 安装 ember-cli-typescript
 
-[ember-cli-typescript](https://ember-cli-typescript.com/) 是我们为 Ember Octane App 添加 TypeScript 支持的最佳选择。安装它只需要在项目根路径下执行命令：
+[ember-cli-typescript](https://ember-cli-typescript.com/versions/octane-docs/) 是我们为 Ember Octane App 添加 TypeScript 支持的最佳选择。安装它只需要在项目根路径下执行命令：
 
 ```bash
 $ ember install ember-cli-typescript
@@ -213,6 +213,75 @@ export default config;
 这样，所有的问题就全都解决了。
 {% endtab %}
 {% endtabs %}
+
+## 处理语法检查错误
+
+现在我们已经把所有缺省文件都转换成了 `.ts` 类型并且修复其中产生的错误，然而此时若打开 `types/` 目录下的各种 `.d.ts` 文件，你会发现多出一些错误（假设你使用 VS Code 编辑器的话）。
+
+这些错误其实是和 Ember Octane 使用的语法检查插件 ESLint 有关系。ESLint 是专为 JavaScript 代码提供语法检查的工具，但 TypeScript 作为 JavaScript 的超集，有一些额外的语法是 ESLint “不认识“的，所以就会报这样一些错误。
+
+接下来，我们来配置 ESLint 让它和 TypeScript 协同工作。
+
+首先，我们要安装两个额外的包：
+
+```bash
+$ yarn add @typescript-eslint/parser @typescript-eslint/eslint-plugin --dev
+# 或
+$ npm install @typescript-eslint/parser @typescript-eslint/eslint-plugin --save-dev
+```
+
+其中 `@typescript-eslint/parser` 是语法解析器，帮助 ESLint “认识“ TypeScript 中那些新的语法元素。
+
+在 `.eslintrc.js` 文件中，将 `parser` 属性修改为：
+
+{% code title=".eslintrc.js" %}
+```javascript
+parser: '@typescript-eslint/parser',
+```
+{% endcode %}
+
+而 `@typescript-eslint/eslint-plugin` 则为我们提供了适合 TypeScript 使用的语法检查规则。
+
+将 `plugins` 和 `extends` 属性分别修改成：
+
+{% code title=".eslintrc.js" %}
+```javascript
+plugins: ['@typescript-eslint', 'ember'],
+extends: [
+  'eslint:recommended',
+  'plugin:@typescript-eslint/eslint-recommended',
+  'plugin:@typescript-eslint/recommended',
+  'plugin:ember/recommended',
+],
+```
+{% endcode %}
+
+最后，在 `overrides` 里添加以下几项：
+
+{% code title=".eslintrc.js" %}
+```javascript
+orverrides: [
+  {
+    files: '*.js',
+    rules: {
+      'prefer-const': 'warn',
+      '@typescript-eslint/camelcase': 'warn',
+      '@typescript-eslint/no-var-requires': 'off',
+      '@typescript-eslint/explicit-function-return-type': 'off',
+    },
+  },
+  {
+    files: 'types/**/*.d.ts',
+    rules: {
+      '@typescript-eslint/no-empty-interface': 'off',
+    },
+  },
+  // ...
+]
+```
+{% endcode %}
+
+这样，就能还你一个清清爽爽的 TypeScript Ember Octane Application 啦！
 
 ## 配置开发环境
 
