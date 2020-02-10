@@ -214,7 +214,7 @@ export default config;
 {% endtab %}
 {% endtabs %}
 
-## 处理语法检查错误
+## 处理语法检查错误 <a id="handle-syntax-check-errors"></a>
 
 现在我们已经把所有缺省文件都转换成了 `.ts` 类型并且修复其中产生的错误，然而此时若打开 `types/` 目录下的各种 `.d.ts` 文件，你会发现多出一些错误（假设你使用 VS Code 编辑器的话）。
 
@@ -283,7 +283,7 @@ orverrides: [
 
 这样，就能还你一个清清爽爽的 TypeScript Ember Octane Application 啦！
 
-## 配置开发环境
+## 配置开发环境 <a id="setup-development-environment"></a>
 
 ### VS Code
 
