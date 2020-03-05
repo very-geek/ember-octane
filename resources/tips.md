@@ -72,6 +72,24 @@ let fooService = owner.lookUp('service:foo');
 
 这是 core team 已经知悉的问题，正在改进中。
 
+### 如何 Mock 一个 Component <a id="how-to-mock-a-component"></a>
+
+有时候测试一个组件或许会涉及到别的组件，比如说 `outer -> inner` 结构的时候，我们并不关心 `inner` 组件的实际情况，此时我们可以 mock 它（也就是创造一个“假的“替代实际存在的 `inner`）：
+
+```typescript
+this.owner.register(
+  'component:inner-component',
+  Component.extend({ layout: hbs`<div></div>` })
+);
+```
+
+如果上述方法不管用（有可能，但我不记得具体原因），还可以尝试这样做：
+
+```typescript
+this.owner.register('component:inner-component', Component.extend({}));
+this.owner.register('template:components/inner-component', hbs`<div></div>`);
+```
+
 ## 工具 <a id="tooling"></a>
 
 ### 如何让 ember-cli-template-lint 不检查 local linked add-on 中的模板？ <a id="not-to-lint-templates-in-a-linked-addon"></a>
